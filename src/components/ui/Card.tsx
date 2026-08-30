@@ -1,0 +1,46 @@
+import React, { type HTMLAttributes } from 'react';
+import { cn } from '../../lib/utils';
+
+export const Card = React.forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "rounded-xl border border-border bg-background-card text-text-primary shadow-card-dark dark:shadow-card-dark",
+        "light:shadow-card-light light:border-border-subtle",
+        className
+      )}
+      {...props}
+    />
+  )
+)
+Card.displayName = "Card"
+
+export const CardHeader = React.forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
+  )
+)
+CardHeader.displayName = "CardHeader"
+
+export const CardTitle = React.forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...props }, ref) => (
+    <h3
+      ref={ref}
+      className={cn("text-[13px] md:text-sm font-medium leading-none tracking-tight text-text-secondary", className)}
+      {...props}
+    />
+  )
+)
+CardTitle.displayName = "CardTitle"
+
+export const CardContent = React.forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  )
+)
+CardContent.displayName = "CardContent"

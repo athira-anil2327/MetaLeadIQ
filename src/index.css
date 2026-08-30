@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark Theme - Default */
+    --bg-primary: 21 20 25; /* #151419 */
+    --bg-secondary: 27 26 31; /* #1B1A1F */
+    --bg-card: 33 31 35; /* #211F23 */
+    --bg-elevated: 39 37 42; /* #27252A */
+    
+    --color-primary: 200 164 90; /* #C8A45A */
+    --color-primary-bright: 224 184 102; /* #E0B866 */
+    --color-primary-soft: 168 134 74; /* #A8864A */
+    
+    --text-primary: 245 241 232; /* #F5F1E8 */
+    --text-secondary: 184 179 170; /* #B8B3AA */
+    --text-muted: 119 115 108; /* #77736C */
+    
+    --border-color: 52 49 55; /* #343137 */
+    --border-subtle: 90 74 45; /* #5A4A2D */
+    
+    --input-bg: 29 28 33; /* #1D1C21 */
+    --hover-bg: 42 40 46; /* #2A282E */
+    
+    --color-success: 95 175 120; /* #5FAF78 */
+    --color-hot: 240 90 85; /* #F05A55 */
+    --color-warm: 232 145 58; /* #E8913A */
+    --color-cold: 91 143 217; /* #5B8FD9 */
+    --color-uncertain: 155 138 114; /* #9B8A72 */
+    
+    --chart-grid: 52 49 55; /* #343137 */
+  }
+
+  .light {
+    --bg-primary: 247 243 236; /* #F7F3EC */
+    --bg-secondary: 239 232 221; /* #EFE8DD */
+    --bg-card: 252 250 246; /* #FCFAF6 */
+    --bg-elevated: 244 238 229; /* #F4EEE5 */
+    
+    --color-primary: 166 106 63; /* #A66A3F (Primary caramel) */
+    --color-primary-bright: 107 74 53; /* #6B4A35 (Primary brown) */
+    --color-primary-soft: 196 154 85; /* #C49A55 (Gold) */
+    --color-primary-light: 216 183 122; /* #D8B77A (Light gold) */
+    
+    --text-primary: 43 37 32; /* #2B2520 */
+    --text-secondary: 111 101 91; /* #6F655B */
+    --text-muted: 150 139 127; /* #968B7F */
+    
+    --border-color: 222 212 199; /* #DED4C7 */
+    --border-subtle: 222 212 199;
+    
+    --input-bg: 243 238 230; /* #F3EEE6 */
+    --hover-bg: 238 230 218; /* #EEE6DA */
+    
+    --color-success: 79 148 101; /* #4F9465 */
+    --color-hot: 217 83 79; /* #D9534F */
+    --color-warm: 217 130 43; /* #D9822B */
+    --color-cold: 78 127 189; /* #4E7FBD */
+    --color-uncertain: 138 120 101; /* #8A7865 */
+    
+    --chart-grid: 222 212 199; /* #DED4C7 */
+  }
+
+  body {
+    @apply bg-background-primary text-text-primary antialiased font-sans transition-colors duration-300;
+  }
+}
+
+/* Custom Scrollbar for better aesthetics */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-text-muted;
+}
