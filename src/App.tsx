@@ -4,6 +4,7 @@ import { TopHeader } from './components/layout/TopHeader';
 import { Dashboard } from './pages/Dashboard';
 import { CampaignAnalytics } from './pages/CampaignAnalytics';
 import { LeadInsights } from './pages/LeadInsights';
+import { Leads } from './pages/Leads';
 import { Settings } from './pages/Settings';
 import { AppProvider } from './context/AppContext';
 import { AddLeadModal } from './components/ui/AddLeadModal';
@@ -16,8 +17,9 @@ const AppContent: React.FC = () => {
   const renderPage = () => {
     switch (activePage) {
       case 'dashboard':
-      case 'leads': // For this prototype, leads and dashboard point to the same view
         return <Dashboard />;
+      case 'leads':
+        return <Leads />;
       case 'campaign-analytics':
         return <CampaignAnalytics />;
       case 'lead-insights':
@@ -32,8 +34,9 @@ const AppContent: React.FC = () => {
   const getPageTitles = () => {
     switch (activePage) {
       case 'dashboard':
-      case 'leads':
         return { title: 'Dashboard', subtitle: "Welcome back. Here's what's happening with your leads today." };
+      case 'leads':
+        return { title: 'Leads', subtitle: 'Manage, prioritize and convert your prospects.' };
       case 'campaign-analytics':
         return { title: 'Campaign Analytics', subtitle: 'Analyze lead generation and conversion performance.' };
       case 'lead-insights':
