@@ -8,6 +8,7 @@ interface AppContextType {
   leads: Lead[];
   addLead: (lead: Lead) => void;
   updateLead: (id: string, updates: Partial<Lead>) => void;
+  fetchLeads: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -101,7 +102,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   return (
-    <AppContext.Provider value={{ theme, toggleTheme, leads, addLead, updateLead }}>
+    <AppContext.Provider value={{ theme, toggleTheme, leads, addLead, updateLead, fetchLeads }}>
       {children}
     </AppContext.Provider>
   );

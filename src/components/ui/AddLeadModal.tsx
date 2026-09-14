@@ -10,7 +10,7 @@ interface AddLeadModalProps {
 }
 
 export const AddLeadModal: React.FC<AddLeadModalProps> = ({ isOpen, onClose }) => {
-  const { addLead } = useAppContext();
+  const { addLead, fetchLeads } = useAppContext();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -157,7 +157,7 @@ export const AddLeadModal: React.FC<AddLeadModalProps> = ({ isOpen, onClose }) =
                       body: formData
                     });
                     if (res.ok) {
-                      alert('Dataset uploaded and scored successfully! Refresh the page to see the new leads.');
+                      await fetchLeads();
                       onClose();
                     } else {
                       alert('Failed to upload dataset.');
