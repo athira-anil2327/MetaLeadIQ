@@ -53,12 +53,17 @@ def download_dataset():
 def run_training_pipeline():
     print("\n--- Starting ML Pipeline ---")
     script_path = os.path.join('backend', 'ingest_and_train.py')
+    req_path = os.path.join('backend', 'requirements.txt')
     
     if not os.path.exists(script_path):
         print(f"Error: {script_path} not found.")
         return
         
     try:
+        if os.path.exists(req_path):
+            print("Installing backend dependencies...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", req_path, "--quiet"])
+            
         # Run the script
         subprocess.check_call([sys.executable, script_path])
         print("\n--- ML Pipeline Completed Successfully ---")
