@@ -178,6 +178,9 @@ def upload_csv(file: UploadFile = File(...)):
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # Clear the existing queue before loading the new dataset
+    cursor.execute("DELETE FROM leads")
+    
     records = []
     for i in range(len(probabilities)):
         lead_name = f"Prospect {original_df['Prospect ID'].iloc[i][:8]}" if 'Prospect ID' in original_df.columns else f"Lead #{random.randint(1000, 9999)}"
