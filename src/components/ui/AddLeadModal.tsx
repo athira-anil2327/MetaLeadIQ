@@ -138,6 +138,38 @@ export const AddLeadModal: React.FC<AddLeadModalProps> = ({ isOpen, onClose }) =
             <Button type="submit">Save Lead</Button>
           </div>
         </form>
+
+        <div className="p-6 border-t border-border">
+          <h3 className="text-sm font-medium mb-3">Or Upload Dataset (CSV)</h3>
+          <div className="flex items-center gap-3">
+            <input 
+              type="file" 
+              accept=".csv"
+              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+              onChange={async (e) => {
+                if (e.target.files && e.target.files[0]) {
+                  const file = e.target.files[0];
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  try {
+                    const res = await fetch('http://localhost:8000/api/upload', {
+                      method: 'POST',
+                      body: formData
+                    });
+                    if (res.ok) {
+                      alert('Dataset uploaded and scored successfully! Refresh the page to see the new leads.');
+                      onClose();
+                    } else {
+                      alert('Failed to upload dataset.');
+                    }
+                  } catch (err) {
+                    alert('Error uploading dataset.');
+                  }
+                }
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
@@ -122,6 +122,81 @@ def get_queue():
     leads_processed.sort(key=lambda x: (-x['decayed_score'], x['cpc']))
     
     return leads_processed
+
+@app.post("/api/upload")
+def upload_csv(file: UploadFile = File(...)):
+    import pandas as pd
+    import joblib
+    import os
+    import random
+    
+    try:
+        # Check models exist
+        model = joblib.load('models/calibrated_xgb_model.pkl')
+        top_features = joblib.load('models/top_features.pkl')
+        preprocessing_info = joblib.load('models/preprocessing_info.pkl')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Models not trained yet")
+        
+    df = pd.read_csv(file.file)
+    original_df = df.copy()
+
+    # Preprocessing
+    cols_to_drop = ['Prospect ID', 'Lead Number']
+    df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors='ignore')
+    df = df.replace('Select', None)
+    
+    if 'Converted' in df.columns:
+        df = df.drop(columns=['Converted'])
+
+    num_cols = preprocessing_info['num_cols']
+    cat_cols = preprocessing_info['cat_cols']
+    all_train_cols = preprocessing_info['all_train_cols']
+
+    # Keep only columns that were in the training set
+    available_num = [c for c in num_cols if c in df.columns]
+    available_cat = [c for c in cat_cols if c in df.columns]
+    
+    # Impute missing
+    df[available_num] = df[available_num].fillna(df[available_num].median())
+    df[available_cat] = df[available_cat].fillna('Unknown')
+
+    # One-hot encode
+    X_encoded = pd.get_dummies(df, columns=available_cat, drop_first=True)
+    
+    # Align columns
+    for col in all_train_cols:
+        if col not in X_encoded.columns:
+            X_encoded[col] = 0
+            
+    X_encoded = X_encoded[all_train_cols]
+    X_inference = X_encoded[top_features]
+
+    # Predict
+    probabilities = model.predict_proba(X_inference)[:, 1]
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    records = []
+    for i in range(len(probabilities)):
+        lead_name = f"Prospect {original_df['Prospect ID'].iloc[i][:8]}" if 'Prospect ID' in original_df.columns else f"Lead #{random.randint(1000, 9999)}"
+        base_score = float(probabilities[i])
+        total_visits = int(original_df['TotalVisits'].iloc[i]) if 'TotalVisits' in original_df.columns and not pd.isna(original_df['TotalVisits'].iloc[i]) else random.randint(1, 10)
+        hours_uncontacted = round(random.uniform(0.5, 48.0), 1)
+        cpc = round(random.uniform(0.5, 5.0), 2)
+        
+        records.append((lead_name, base_score, total_visits, hours_uncontacted, cpc, 0))
+
+    cursor.executemany('''
+        INSERT INTO leads (lead_name, base_score, total_visits, hours_uncontacted, cpc, contacted)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', records)
+    
+    conn.commit()
+    conn.close()
+    
+    return {"status": "success", "inserted": len(records)}
 
 @app.post("/api/leads/{lead_id}/contact")
 def mark_contacted(lead_id: int):
