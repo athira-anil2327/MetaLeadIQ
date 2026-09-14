@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Users, Flame, Search, Filter, Phone, Mail, Clock, 
-  CheckCircle2, ChevronRight, Activity, Calendar, MousePointer2, 
+  Users, Search, Filter, Phone, Mail, Clock, 
+  CheckCircle2, Calendar, MousePointer2, 
   Eye, FileText, ArrowUpRight
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
@@ -40,11 +40,6 @@ export const Leads: React.FC = () => {
     return 'text-status-cold bg-status-cold/10';
   };
 
-  const getScoreProgressBarColor = (score: number) => {
-    if (score >= 70) return 'bg-status-hot';
-    if (score >= 40) return 'bg-status-warm';
-    return 'bg-status-cold';
-  };
 
   // Mock data for the lead quality over time chart
   const timeData = selectedLead ? [
