@@ -14,14 +14,6 @@ def download_dataset():
 
     print("Attempting to download 'ashydv/leads-dataset' using Kaggle API...")
     try:
-        # Check if kaggle is installed
-        import kaggle
-    except ImportError:
-        print("Kaggle library not found. Installing...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "kaggle"])
-    
-    try:
-        # Download using kaggle CLI
         subprocess.check_call(["kaggle", "datasets", "download", "-d", "ashydv/leads-dataset"])
         
         if os.path.exists(zip_file):
