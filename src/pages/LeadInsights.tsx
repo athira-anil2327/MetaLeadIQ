@@ -157,6 +157,78 @@ export const LeadInsights: React.FC = () => {
         </Card>
 
       </div>
+
+      {/* ML Pipeline Visualization */}
+      <Card className="col-span-1 md:col-span-2 mt-8">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Layout className="w-5 h-5 text-primary" />
+            <CardTitle>ML Lead Scoring Pipeline (6 Steps)</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="relative">
+            {/* Connecting line */}
+            <div className="hidden md:block absolute top-[45px] left-8 right-8 h-0.5 bg-border -z-10" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 relative">
+              {/* Step 1 */}
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-background-elevated border-2 border-primary flex items-center justify-center mb-3">
+                  <span className="font-bold text-primary">1</span>
+                </div>
+                <h4 className="text-sm font-semibold text-text-primary mb-1">Feature Pruning</h4>
+                <p className="text-xs text-text-muted">SHAP library computes Shapley values to identify the top 42 most impactful predictive features.</p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-background-elevated border-2 border-primary flex items-center justify-center mb-3">
+                  <span className="font-bold text-primary">2</span>
+                </div>
+                <h4 className="text-sm font-semibold text-text-primary mb-1">XGBoost Model</h4>
+                <p className="text-xs text-text-muted">Binary logistic classifier trained using Newton-Raphson second-order gradients.</p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-background-elevated border-2 border-primary flex items-center justify-center mb-3">
+                  <span className="font-bold text-primary">3</span>
+                </div>
+                <h4 className="text-sm font-semibold text-text-primary mb-1">Platt Scaling</h4>
+                <p className="text-xs text-text-muted">CalibratedClassifierCV maps raw tree logits into a true base probability (0 to 1).</p>
+              </div>
+
+              {/* Step 4 */}
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-background-elevated border-2 border-primary flex items-center justify-center mb-3">
+                  <span className="font-bold text-primary">4</span>
+                </div>
+                <h4 className="text-sm font-semibold text-text-primary mb-1">Time Decay</h4>
+                <p className="text-xs text-text-muted">Base score depreciates via exponential decay (-0.0289 * uncontacted hours).</p>
+              </div>
+
+              {/* Step 5 */}
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-background-elevated border-2 border-primary flex items-center justify-center mb-3">
+                  <span className="font-bold text-primary">5</span>
+                </div>
+                <h4 className="text-sm font-semibold text-text-primary mb-1">Wald 95% C.I.</h4>
+                <p className="text-xs text-text-muted">Margin of error calculated factoring in target probability and Total Visits.</p>
+              </div>
+
+              {/* Step 6 */}
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-background-elevated border-2 border-primary flex items-center justify-center mb-3">
+                  <span className="font-bold text-primary">6</span>
+                </div>
+                <h4 className="text-sm font-semibold text-text-primary mb-1">Lexicographic Queue</h4>
+                <p className="text-xs text-text-muted">Leads are dynamically sorted by Decayed Score (DESC), followed by CPC (ASC).</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
