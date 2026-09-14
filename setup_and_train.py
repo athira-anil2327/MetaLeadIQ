@@ -44,14 +44,19 @@ def download_dataset():
                             print("Successfully downloaded and extracted Leads.csv!")
                             return True
         else:
-            print("Zip file not found after download.")
-    except subprocess.CalledProcessError as e:
-        print("Failed to download via Kaggle API. Make sure your kaggle.json is configured.")
-        print("You can manually download it from: https://www.kaggle.com/datasets/ashydv/leads-dataset")
-        return False
+            print("Zip file not found after Kaggle download.")
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
+        print("Failed to download via Kaggle API. Attempting alternative Github Mirror...")
+        try:
+            import urllib.request
+            url = 'https://raw.githubusercontent.com/Shivan118/Lead-Scoring-Case-Study/main/Leads.csv'
+            urllib.request.urlretrieve(url, 'Leads.csv')
+            print("Successfully downloaded from Github Mirror!")
+            return True
+        except Exception as e2:
+            print(f"Alternative download failed: {e2}")
+            print("You can manually download it from: https://www.kaggle.com/datasets/ashydv/leads-dataset")
+            return False
 
 def run_training_pipeline():
     print("\n--- Starting ML Pipeline ---")
