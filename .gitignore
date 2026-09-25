@@ -51,3 +51,5 @@ venv/
 models/
 Leads.csv
 leads-dataset.zip
+metaleadiq.zip
+extracted_metaleadiq/

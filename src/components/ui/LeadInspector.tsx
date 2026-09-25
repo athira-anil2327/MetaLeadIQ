@@ -15,16 +15,23 @@ interface LeadInspectorProps {
 export const LeadInspector: React.FC<LeadInspectorProps> = ({ lead, onClose, onContacted }) => {
   if (!lead) return null;
 
-  // Mock data for the lead quality over time chart
-  const timeData = [
-    { time: 'Submission', score: lead.baseScore },
-    { time: '2h', score: lead.baseScore - Math.random() * 5 },
-    { time: '6h', score: lead.baseScore - Math.random() * 10 - 2 },
-    { time: '12h', score: lead.baseScore - Math.random() * 15 - 5 },
-    { time: '24h', score: lead.baseScore - Math.random() * 25 - 10 },
-    { time: '48h', score: Math.max(20, lead.baseScore - Math.random() * 40 - 20) },
-    { time: '72h', score: Math.max(10, lead.currentScore) },
-  ];
+  // Deterministic exponential time decay: S(t) = S_0 * exp(-lambda * t), half_life = 24h
+  const timeData = React.useMemo(() => {
+    const lambda = 0.028881; // Math.log(2) / 24
+    const intervals = [
+      { time: '0h', hours: 0 },
+      { time: '2h', hours: 2 },
+      { time: '6h', hours: 6 },
+      { time: '12h', hours: 12 },
+      { time: '24h', hours: 24 },
+      { time: '48h', hours: 48 },
+      { time: '72h', hours: 72 },
+    ];
+    return intervals.map((intv) => ({
+      time: intv.time,
+      score: Math.round(lead.baseScore * Math.exp(-lambda * intv.hours)),
+    }));
+  }, [lead.baseScore]);
 
   return (
     <>
@@ -203,7 +210,7 @@ export const LeadInspector: React.FC<LeadInspectorProps> = ({ lead, onClose, onC
                 </div>
                 <div>
                   <span className="text-[11px] text-text-muted block mb-0.5">CPC</span>
-                  <span className="text-sm font-medium">${lead.cpc.toFixed(2)}</span>
+                  <span className="text-sm font-medium">${(lead.cpc ?? 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -217,7 +224,11 @@ export const LeadInspector: React.FC<LeadInspectorProps> = ({ lead, onClose, onC
           <Button 
             variant="outline" 
             className="flex-1"
-            onClick={() => {}}
+            onClick={() => {
+              if (lead.email) {
+                window.location.href = `mailto:${lead.email}?subject=MetaLeadIQ Follow-up`;
+              }
+            }}
           >
             <Mail className="w-4 h-4 mr-2" />
             Email
