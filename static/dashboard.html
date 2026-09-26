@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MetaLeadIQ Dashboard</title>
+<style>
+  :root {
+    --hot: #e0432c; --warm: #d99a1f; --cold: #6b7785;
+    --bg: #0f1216; --panel: #171b21; --border: #262c34; --text: #e7ebef; --muted: #8a94a3;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  header { padding: 16px 24px; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  header h1 { font-size: 18px; margin:0; }
+  header span { color: var(--muted); font-size: 13px; }
+  .layout { display:grid; grid-template-columns: 1.1fr 1fr; gap:16px; padding:16px; height: calc(100vh - 60px); }
+  .panel { background: var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+  .panel-header { padding:12px 16px; border-bottom:1px solid var(--border); font-weight:600; font-size:14px; display:flex; justify-content:space-between; }
+  .panel-body { overflow-y:auto; flex:1; }
+  .lead-row { padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .lead-row:hover { background:#1d232b; }
+  .badge { font-size:11px; padding:2px 8px; border-radius:999px; text-transform:uppercase; font-weight:700; }
+  .badge.hot { background: rgba(224,67,44,0.15); color: var(--hot); }
+  .badge.warm { background: rgba(217,154,31,0.15); color: var(--warm); }
+  .badge.cold { background: rgba(107,119,133,0.2); color: var(--cold); }
+  .lead-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  .lead-name { font-weight:600; font-size:14px; }
+  .lead-meta { color: var(--muted); font-size:12px; }
+  .score { font-size: 20px; font-weight:700; }
+  .conv-row { padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .conv-row:hover { background:#1d232b; }
+  .conv-row.active { background:#1d232b; border-left:3px solid #4f8cff; }
+  .chan-tag { font-size:10px; text-transform:uppercase; color:var(--muted); }
+  #messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:8px; }
+  .msg { max-width:70%; padding:8px 12px; border-radius:10px; font-size:13px; }
+  .msg.inbound { background:#242a33; align-self:flex-start; }
+  .msg.outbound { background:#2c4a7c; align-self:flex-end; }
+  .reply-box { display:flex; border-top:1px solid var(--border); padding:10px; gap:8px; }
+  .reply-box input { flex:1; background:#0f1216; border:1px solid var(--border); color:var(--text); padding:10px; border-radius:8px; }
+  .reply-box button { background:#4f8cff; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; }
+  .empty { color: var(--muted); padding: 24px; text-align:center; font-size:13px; }
+  #inbox-thread { display:flex; flex-direction:column; height:100%; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MetaLeadIQ</h1>
+  <span id="status-line">Loading…</span>
+</header>
+
+<div class="layout">
+  <div class="panel">
+    <div class="panel-header"><span>Priority Queue</span><span id="queue-count" style="color:var(--muted); font-weight:400;"></span></div>
+    <div class="panel-body" id="lead-list"></div>
+  </div>
+
+  <div class="panel" style="display:grid; grid-template-rows: auto 1fr; grid-template-columns: 1fr;">
+    <div style="display:grid; grid-template-columns: 1fr 1.3fr; height:100%;">
+      <div style="border-right:1px solid var(--border); display:flex; flex-direction:column;">
+        <div class="panel-header">Unified Inbox</div>
+        <div class="panel-body" id="conv-list"></div>
+      </div>
+      <div id="inbox-thread">
+        <div class="panel-header" id="thread-header">Select a conversation</div>
+        <div id="messages"></div>
+        <div class="reply-box">
+          <input id="reply-input" placeholder="Type a reply…" />
+          <button onclick="sendReply()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let activeConversationId = null;
+
+async function fetchJSON(url, opts) {
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+function fmtPct(p) { return p == null ? '—' : Math.round(p * 100) + '%'; }
+
+async function loadLeads() {
+  try {
+    const leads = await fetchJSON('/api/leads');
+    document.getElementById('status-line').textContent = 'Connected';
+    document.getElementById('queue-count').textContent = leads.length + ' active';
+    const container = document.getElementById('lead-list');
+    if (!leads.length) {
+      container.innerHTML = '<div class="empty">No scored leads yet. Leads arrive via webhooks, or POST to /api/leads.</div>';
+      return;
+    }
+    container.innerHTML = leads.map(l => `
+      <div class="lead-row">
+        <div class="lead-top">
+          <span class="lead-name">#${l.rank} ${l.full_name || l.phone || l.instagram_scoped_id || 'Unknown'}</span>
+          <span class="badge ${l.status}">${l.status}</span>
+        </div>
+        <div class="lead-meta">${l.source} · CPC $${(l.cpc||0).toFixed(2)} · CI ${l.ci_lower ?? '—'}–${l.ci_upper ?? '—'}% (${l.confidence_level || '—'})</div>
+        <div class="score">${l.decayed_score}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('status-line').textContent = 'Backend unreachable';
+  }
+}
+
+async function loadConversations() {
+  const convs = await fetchJSON('/api/inbox');
+  const container = document.getElementById('conv-list');
+  if (!convs.length) {
+    container.innerHTML = '<div class="empty">No conversations yet. They appear as WhatsApp/Instagram messages arrive.</div>';
+    return;
+  }
+  container.innerHTML = convs.map(c => `
+    <div class="conv-row ${c.conversation_id === activeConversationId ? 'active' : ''}" onclick="openConversation(${c.conversation_id}, '${(c.full_name||c.external_id).replace(/'/g,"")}')">
+      <div class="lead-top">
+        <span class="lead-name">${c.full_name || c.external_id}</span>
+        <span class="chan-tag">${c.channel}</span>
+      </div>
+      <div class="lead-meta">${(c.last_message || '').slice(0, 60)}</div>
+    </div>
+  `).join('');
+}
+
+async function openConversation(id, label) {
+  activeConversationId = id;
+  document.getElementById('thread-header').textContent = label;
+  loadConversations();
+  const data = await fetchJSON(`/api/inbox/${id}/messages`);
+  const box = document.getElementById('messages');
+  box.innerHTML = data.messages.map(m => `<div class="msg ${m.direction}">${m.body}</div>`).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendReply() {
+  if (!activeConversationId) return alert('Select a conversation first.');
+  const input = document.getElementById('reply-input');
+  const body = input.value.trim();
+  if (!body) return;
+  input.value = '';
+  try {
+    await fetchJSON(`/api/inbox/${activeConversationId}/reply`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ body })
+    });
+    openConversation(activeConversationId, document.getElementById('thread-header').textContent);
+  } catch (e) {
+    alert('Send failed: ' + e.message + '\n(Expected until WhatsApp/Instagram tokens are configured.)');
+  }
+}
+
+document.getElementById('reply-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendReply(); });
+
+loadLeads();
+loadConversations();
+setInterval(loadLeads, 8000);
+setInterval(loadConversations, 8000);
+</script>
+</body>
+</html>
