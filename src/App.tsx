@@ -5,6 +5,8 @@ import { Dashboard } from './pages/Dashboard';
 import { CampaignAnalytics } from './pages/CampaignAnalytics';
 import { LeadInsights } from './pages/LeadInsights';
 import { Leads } from './pages/Leads';
+import { UnifiedInbox } from './pages/UnifiedInbox';
+import { IngestionGuide } from './pages/IngestionGuide';
 import { Settings } from './pages/Settings';
 import { AppProvider } from './context/AppContext';
 import { AddLeadModal } from './components/ui/AddLeadModal';
@@ -20,6 +22,10 @@ const AppContent: React.FC = () => {
         return <Dashboard />;
       case 'leads':
         return <Leads />;
+      case 'inbox':
+        return <UnifiedInbox />;
+      case 'ingestion-guide':
+        return <IngestionGuide />;
       case 'campaign-analytics':
         return <CampaignAnalytics />;
       case 'lead-insights':
@@ -36,7 +42,11 @@ const AppContent: React.FC = () => {
       case 'dashboard':
         return { title: 'Dashboard', subtitle: "Welcome back. Here's what's happening with your leads today." };
       case 'leads':
-        return { title: 'Leads', subtitle: 'Manage, prioritize and convert your prospects.' };
+        return { title: 'Leads Priority Queue', subtitle: 'Real-time XGBoost scored, decayed, and ranked prospects.' };
+      case 'inbox':
+        return { title: 'Unified Inbox', subtitle: 'Live two-way WhatsApp and Instagram conversation threads.' };
+      case 'ingestion-guide':
+        return { title: 'Ingestion Guide & Webhooks', subtitle: 'Technical documentation and live simulator for lead ingestion pathways.' };
       case 'campaign-analytics':
         return { title: 'Campaign Analytics', subtitle: 'Analyze lead generation and conversion performance.' };
       case 'lead-insights':

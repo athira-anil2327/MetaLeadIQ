@@ -51,3 +51,14 @@ venv/
 models/
 Leads.csv
 leads-dataset.zip
+metaleadiq.zip
+extracted_metaleadiq/
+backend/data/*.db
+backend/data/*.json
+backend/data/processed_leads_meta.csv
+*.local.md
+METHODOLOGY_REPORT.html
+methodology_report.html
+report.html
+METHODOLOGY_AND_MATHEMATICS.md
+memory.md
