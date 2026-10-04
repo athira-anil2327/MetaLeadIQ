@@ -12,6 +12,7 @@ interface AppContextType {
   leads: Lead[];
   isLiveBackend: boolean;
   refreshLeads: () => Promise<void>;
+  fetchLeads: () => Promise<void>;
   addLead: (leadData: Partial<Lead>) => Promise<void>;
   updateLead: (id: string, updates: Partial<Lead>) => Promise<void>;
   deleteLead: (id: string) => Promise<void>;
@@ -419,15 +420,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!conv) {
       conv = {
         id: convId,
-        leadId: lead.id,
+        leadId: lead!.id,
         leadName: name,
         channel,
         externalId,
         createdAt: new Date().toISOString(),
         lastMessage: text,
         lastMessageTimestamp: new Date().toISOString(),
-        leadScore: lead.currentScore,
-        leadStatus: lead.status,
+        leadScore: lead!.currentScore,
+        leadStatus: lead!.status,
         unreadCount: 1,
       };
       setConversations(prev => [conv!, ...prev]);
@@ -465,6 +466,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         leads,
         isLiveBackend,
         refreshLeads,
+        fetchLeads,
         addLead,
         updateLead,
         deleteLead,
