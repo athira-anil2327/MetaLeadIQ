@@ -458,6 +458,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
   };
 
+  // --------------------------------------------------------
+  // REAL-TIME WEBSOCKET LISTENER
+  // --------------------------------------------------------
+  useEffect(() => {
+    let ws: WebSocket;
+    let reconnectTimer: number;
+
+    const connectWebSocket = () => {
+      ws = new WebSocket('ws://localhost:8000/api/ws');
+
+      ws.onopen = () => {
+        console.log('✅ Connected to MetaLeadIQ Real-Time WebSocket');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('🔔 Live Event Received:', data);
+          // Instantly refresh the UI queue and inbox when the backend broadcasts a new lead or message!
+          refreshLeads();
+        } catch (e) {
+          console.error('Failed to parse WebSocket message', e);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed. Attempting reconnect in 5s...');
+        reconnectTimer = window.setTimeout(connectWebSocket, 5000);
+      };
+    };
+
+    connectWebSocket();
+
+    return () => {
+      clearTimeout(reconnectTimer);
+      if (ws) ws.close();
+    };
+  }, []); // Empty dependency array means it connects once on mount
+
   return (
     <AppContext.Provider
       value={{
