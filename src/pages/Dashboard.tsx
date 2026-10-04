@@ -19,8 +19,8 @@ export const Dashboard: React.FC = () => {
 
   const stats = useMemo(() => {
     const hotLeads = leads.filter(l => l.status === 'Hot').length;
-    const avgProb = Math.round(leads.reduce((acc, l) => acc + l.conversionProbability, 0) / leads.length);
-    const avgUncontacted = (leads.reduce((acc, l) => acc + l.hoursUncontacted, 0) / leads.length).toFixed(1);
+    const avgProb = leads.length > 0 ? Math.round(leads.reduce((acc, l) => acc + l.conversionProbability, 0) / leads.length) : 0;
+    const avgUncontacted = leads.length > 0 ? (leads.reduce((acc, l) => acc + l.hoursUncontacted, 0) / leads.length).toFixed(1) : '0.0';
     
     return [
       { 
@@ -150,6 +150,7 @@ export const Dashboard: React.FC = () => {
               <option value="Reels">Reels</option>
               <option value="Stories">Stories</option>
               <option value="Feed">Feed</option>
+              <option value="Audience Network">Audience Network</option>
               <option value="Marketplace">Marketplace</option>
             </select>
 
@@ -160,8 +161,9 @@ export const Dashboard: React.FC = () => {
             >
               <option value="All">All Audiences</option>
               <option value="1% Lookalike">1% Lookalike</option>
-              <option value="Broad">Broad</option>
+              <option value="Lookalike">Lookalike</option>
               <option value="Retargeting">Retargeting</option>
+              <option value="Broad">Broad</option>
             </select>
 
             <div className="flex items-center gap-2 px-3">
@@ -195,7 +197,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Priority Table */}
-        <div className="bg-background-card border border-border rounded-xl overflow-x-auto shadow-card-dark light:shadow-card-light">
+        <div className="bg-background-card border border-border rounded-xl overflow-x-auto shadow-md">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-border text-xs text-text-muted bg-background-elevated/50">

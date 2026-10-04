@@ -5,7 +5,9 @@ import {
   BarChart3, 
   Lightbulb, 
   Settings,
-  Hexagon
+  Hexagon,
+  MessageSquare,
+  UploadCloud
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -18,7 +20,9 @@ interface SidebarProps {
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'leads', label: 'Leads', icon: Users },
+  { id: 'leads', label: 'Leads Queue', icon: Users },
+  { id: 'inbox', label: 'Unified Inbox', icon: MessageSquare },
+  { id: 'ingestion-guide', label: 'Ingestion Guide', icon: UploadCloud },
   { id: 'campaign-analytics', label: 'Campaign Analytics', icon: BarChart3 },
   { id: 'lead-insights', label: 'Lead Insights', icon: Lightbulb },
   { id: 'settings', label: 'Settings', icon: Settings },
