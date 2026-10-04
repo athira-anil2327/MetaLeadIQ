@@ -177,7 +177,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          setConversations(data.map((c: any) => ({
+          const convs = data.map((c: any) => ({
             id: String(c.id),
             leadId: String(c.lead_id),
             leadName: c.full_name || `Lead #${c.lead_id}`,
@@ -186,7 +186,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             createdAt: c.created_at,
             leadScore: c.base_score,
             leadStatus: c.base_score >= 70 ? 'Hot' : c.base_score >= 40 ? 'Warm' : 'Cold',
-          })));
+            lastMessageTimestamp: c.updated_at || c.created_at,
+          }));
+          setConversations(convs);
+
+          // Fetch messages for all conversations
+          const msgsRecord: Record<string, InboxMessage[]> = {};
+          await Promise.all(convs.map(async (c: any) => {
+            try {
+              const mRes = await fetch(`${API_BASE}/inbox/${c.id}/messages`);
+              if (mRes.ok) {
+                const mData = await mRes.json();
+                msgsRecord[c.id] = (mData.messages || []).map((m: any) => ({
+                  id: String(m.id),
+                  conversationId: String(m.conversation_id),
+                  direction: m.direction,
+                  channel: m.channel,
+                  body: m.body,
+                  timestamp: m.created_at
+                }));
+              }
+            } catch (e) {}
+          }));
+          setMessages(prev => ({ ...prev, ...msgsRecord }));
         }
       }
     } catch (e) {}
