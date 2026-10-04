@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 
 from app import database as db
 from app.routers import webhooks, leads, inbox
+from app import websockets
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(webhooks.router)
 app.include_router(leads.router)
 app.include_router(inbox.router)
+app.include_router(websockets.router)
 
 
 @app.on_event("startup")

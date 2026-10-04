@@ -8,6 +8,7 @@ from app import database as db
 from app.ml.scoring import score_lead
 from app.ml.confidence import wald_interval
 from app.integrations import whatsapp, instagram, meta_leads
+from app.websockets import manager
 
 logger = logging.getLogger("metaleadiq.webhooks")
 router = APIRouter(prefix="/api/webhook", tags=["webhooks"])
@@ -71,6 +72,14 @@ async def receive_meta_lead(request: Request):
             logger.error(str(e))
         created_ids.append(lead_id)
 
+    # Broadcast to all connected React clients that new leads just arrived!
+    if created_ids:
+        await manager.broadcast_json({
+            "event": "NEW_LEAD",
+            "message": f"Received {len(created_ids)} new lead(s) from Meta Ads",
+            "source": "meta"
+        })
+
     return {"status": "ok", "leads_created": created_ids}
 
 
@@ -114,6 +123,14 @@ async def receive_whatsapp_message(request: Request):
 
         conversation_id = db.get_or_create_conversation(lead["id"], "whatsapp", msg["wa_id"])
         db.add_message(conversation_id, "inbound", "whatsapp", msg["text"], payload)
+
+    # Push to React Dashboard
+    if inbound_messages:
+        await manager.broadcast_json({
+            "event": "NEW_MESSAGE",
+            "message": f"Received {len(inbound_messages)} new message(s) from WhatsApp",
+            "source": "whatsapp"
+        })
 
     return {"status": "ok", "messages_received": len(inbound_messages)}
 
@@ -159,5 +176,13 @@ async def receive_instagram_message(request: Request):
             lead["id"], "instagram", dm["ig_scoped_id"]
         )
         db.add_message(conversation_id, "inbound", "instagram", dm["text"], payload)
+
+    # Push to React Dashboard
+    if inbound_dms:
+        await manager.broadcast_json({
+            "event": "NEW_MESSAGE",
+            "message": f"Received {len(inbound_dms)} new message(s) from Instagram",
+            "source": "instagram"
+        })
 
     return {"status": "ok", "messages_received": len(inbound_dms)}
