@@ -59,7 +59,7 @@ def main():
     for conv in r.json():
         print(f"  [{conv['channel']}] {conv.get('full_name') or conv['external_id']}: {conv['last_message']}")
 
-    print("\nOpen http://localhost:8000 to see the dashboard.")
+    print("\nOpen http://127.0.0.1:3000 to see the real-time React dashboard update!")
 
 
 if __name__ == "__main__":
