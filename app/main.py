@@ -2,8 +2,6 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 
 from app import database as db
 from app.routers import webhooks, leads, inbox
@@ -38,11 +36,3 @@ def startup():
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-@app.get("/")
-def dashboard():
-    return FileResponse("static/dashboard.html")
-
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
