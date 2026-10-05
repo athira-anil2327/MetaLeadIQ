@@ -178,7 +178,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
           const convs = data.map((c: any) => ({
-            id: String(c.id),
+            id: String(c.conversation_id),
             leadId: String(c.lead_id),
             leadName: c.full_name || `Lead #${c.lead_id}`,
             channel: c.channel,
@@ -203,7 +203,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                   direction: m.direction,
                   channel: m.channel,
                   body: m.body,
-                  timestamp: m.created_at
+                  timestamp: m.timestamp
                 }));
               }
             } catch (e) {}
